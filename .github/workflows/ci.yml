@@ -23,7 +23,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t how-much-left-discord-bot:latest .
+        run: docker build -t adautovjr/how-much-left-discord-bot:latest .
 
       - name: Push to Dockerhub
-        run: docker push how-much-left-discord-bot:latest
+        run: docker push adautovjr/how-much-left-discord-bot:latest

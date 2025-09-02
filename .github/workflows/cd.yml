@@ -22,10 +22,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Pull Docker image
-        run: docker pull how-much-left-discord-bot:latest
+        run: docker pull adautovjr/how-much-left-discord-bot:latest
       
       - name: Delete old image
-        run: docker rm -f how-much-left-discord-bot:latest || true
+        run: docker rm -f adautovjr/how-much-left-discord-bot:latest || true
 
       - name: Deploy with Docker Compose
         run: |
