@@ -11,4 +11,4 @@ RUN npm ci --only=production
 # Copy source code
 COPY . .
 
-CMD ["node", "index.js"]
+CMD ["npm", "start"]
