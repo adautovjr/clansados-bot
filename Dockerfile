@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:lts-alpine
 
 WORKDIR /app
 
@@ -6,13 +6,12 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
 RUN npm ci --only=production
+
+# Debug: Check what's installed
+RUN ls -la node_modules/
 
 # Copy source code
 COPY . .
-
-# Expose port if needed (optional)
-# EXPOSE 3000
 
 CMD ["node", "index.js"]
