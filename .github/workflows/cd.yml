@@ -27,6 +27,11 @@ jobs:
       - name: Delete old image
         run: docker rm -f adautovjr/how-much-left-discord-bot:latest || true
 
+      - name: Set up .env file
+        run: |
+          echo "DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}" >> .env
+          echo "CHANNEL_ID=${{ secrets.CHANNEL_ID }}" >> .env
+
       - name: Deploy with Docker Compose
         run: |
           docker compose down
