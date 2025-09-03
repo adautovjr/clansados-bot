@@ -1,6 +1,6 @@
 services:
   countdown-bot:
-    image: adautovjr/how-much-left-disc-bot:latest
+    image: adautovjr/how-much-left-discord-bot:latest
     container_name: discord-countdown-bot
     restart: always
     env_file:
