@@ -19,7 +19,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Import required Discord.js components and cron scheduler
-import { AttachmentBuilder, Client, GatewayIntentBits, underline } from 'discord.js';
+import { AttachmentBuilder, Client, GatewayIntentBits } from 'discord.js';
 import cron from 'node-cron';
 import { generate } from 'text-to-image';
 
@@ -39,14 +39,14 @@ async function getImageArt(string) {
   // Generate image data URL with specified styles
   const dataUrl = await generate(string, {
     fontPath: "./assets/pricedown.otf",
-    fontSize: 80,
+    fontSize: 180,
     textColor: 'white',
-    lineHeight: 90,
-    margin: 20,
+    lineHeight: 230,
+    margin: 10,
     bgColor: 'transparent',
-    strokeWidth: 2,
+    strokeWidth: 20,
     strokeColor: 'black',
-    maxWidth: 800,
+    maxWidth: 800
   });
 
   // Convert data URL to buffer
@@ -81,168 +81,6 @@ function getDaysRemaining() {
   const timeDiff = targetDate.getTime() - today.getTime();
   const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
   return daysRemaining;
-}
-
-/**
- * Generate ASCII art for a given string of numbers and letters
- * 
- * This function converts a string containing digits and specific letters
- * (D, A, Y, S, I) into large ASCII art representation.
- * 
- * @param {string} numberString - The string to convert to ASCII art
- * @returns {string} The ASCII art representation with newlines
- */
-function getAsciiArt(numberString) {
-  // ASCII art patterns for each supported character
-  // Each character is represented as an array of 6 lines
-  const digitsArt = {
-    "0": [
-      "  ___  ",
-      " / _ \\ ",
-      "| | | |",
-      "| | | |",
-      "| |_| |",
-      " \\___/ "
-    ],
-    "1": [
-      "  __ ",
-      " /_ |",
-      "  | |",
-      "  | |",
-      "  | |",
-      "  |_|"
-    ],
-    "2": [
-      "  ___  ",
-      " |__ \\ ",
-      "    ) |",
-      "   / / ",
-      "  / /_ ",
-      " |____|"
-    ],
-    "3": [
-      "  ____  ",
-      " |___ \\ ",
-      "   __) |",
-      "  |__ < ",
-      "  ___) |",
-      " |____/ "
-    ],
-    "4": [
-      "  _  _   ",
-      " | || |  ",
-      " | || |_ ",
-      " |__   _|",
-      "    | |  ",
-      "    |_|  "
-    ],
-    "5": [
-      "  _____ ",
-      " | ____|",
-      " | |__  ",
-      " |___ \\ ",
-      "  ___) |",
-      " |____/ "
-    ],
-    "6": [
-      "   __  ",
-      "  / /  ",
-      " / /_  ",
-      "| '_ \\ ",
-      "| (_) |",
-      " \\___/ "
-    ],
-    "7": [
-      "  ______ ",
-      " |____  |",
-      "     / / ",
-      "    / /  ",
-      "   / /   ",
-      "  /_/    "
-    ],
-    "8": [
-      "  ___  ",
-      " / _ \\ ",
-      "| (_) |",
-      " > _ < ",
-      "| (_) |",
-      " \\___/ "
-    ],
-    "9": [
-      "  ___  ",
-      " / _ \\ ",
-      "| (_) |",
-      " \\__, |",
-      "   / / ",
-      "  /_/  "
-    ],
-    "D": [
-      "  ____  ",
-      " |  _ \\ ",
-      " | | | |",
-      " | | | |",
-      " | |_| |",
-      " |____/ ",
-      "        "
-    ],
-    "A": [
-      "      __     ",
-      "     /  \\    ",
-      "    /    \\   ",
-      "   /  __  \\  ",
-      "  /  ____  \\ ",
-      " /__/    \\__\\",
-    ],
-    "Y": [
-      "  __   __ ",
-      "  \\ \\ / / ",
-      "   \\ V /  ",
-      "    > /   ",
-      "   / /    ",
-      "  /_/     "
-    ],
-    "S": [
-      "  ____  ",
-      " / ___| ",
-      "| (___ ",
-      " \\___ \\ ",
-      "  ___) |",
-      " |____/ "
-    ],
-    "I": [
-      "  ___  ",
-      " |_ _| ",
-      "  | |  ",
-      "  | |  ",
-      " |___| ",
-      "       "
-    ],
-    " ": [
-      "       ",
-      "       ",
-      "       ",
-      "       ",
-      "       ",
-      "       "
-    ]
-  };
-
-  // Initialize array to hold the 6 lines of ASCII art
-  const lines = ["", "", "", "", "", ""];
-
-  // Process each character in the input string
-  for (const digit of numberString) {
-    // Get ASCII art for current character, fallback to spaces if not found
-    const digitLines = digitsArt[digit] || ["      ", "      ", "      ", "      ", "      ", "      "];
-    
-    // Append each line of the character's ASCII art to the corresponding line
-    for (let i = 0; i < 6; i++) {
-      lines[i] += digitLines[i];
-    }
-  }
-
-  // Join all lines with newlines to create the final ASCII art
-  return lines.join("\n");
 }
 
 /**
@@ -330,7 +168,7 @@ async function sendCountdownMessage() {
     const alreadyPostedToday = await hasPostedTodayMessage(channel);
     if (alreadyPostedToday) {
       console.log('Countdown message for today was already sent. Skipping.');
-      // return;
+      return;
     }
     
     // Clean up: find and delete the previous countdown message
@@ -348,7 +186,6 @@ async function sendCountdownMessage() {
     // Calculate countdown and generate ASCII art
     const daysRemaining = getDaysRemaining();
     const numberString = Math.abs(daysRemaining).toString();
-    // const asciiArt = getAsciiArt(numberString + " DAYS");
     const imageArt = await getImageArt(numberString + " days");
     
     // Format message based on countdown status
