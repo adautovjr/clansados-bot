@@ -19,7 +19,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Import required Discord.js components and cron scheduler
-import { AttachmentBuilder, Client, GatewayIntentBits } from 'discord.js';
+import { AttachmentBuilder, Client, GatewayIntentBits, underline } from 'discord.js';
 import cron from 'node-cron';
 import { registerFont, UltimateTextToImage } from "ultimate-text-to-image";
 
@@ -31,6 +31,23 @@ try {
 } catch (error) {
   console.error('❌ Failed to register custom font:', error);
 }
+
+const primaryColor = '#ffffff';
+const secondaryColor = "#FCA41C";
+
+const defaultSettings = {
+    fontFamily: "Arial",
+    fontSize: 40,
+    fontColor: primaryColor,
+    width: 200,
+    height: 60,
+    align: "center",
+    valign: "middle",
+    backgroundColor: secondaryColor,
+    bold: true,
+    strokeSize: 2,
+    strokeColor: primaryColor,
+  }
 
 /**
  * Generate an image with styled text using the custom Diploma font
@@ -47,19 +64,7 @@ async function getImageArt(string) {
   
   try {
     // Create image buffer with custom styling
-    const buffer = new UltimateTextToImage(string, {
-      fontFamily: "Diploma",           // Use the registered custom font
-      fontSize: 120,                   // Large font size for visibility
-      fontWeight: "normal",            // Use normal weight (more compatible)
-      width: 600,                      // Increased width for better text spacing
-      height: 200,                     // Set explicit height
-      fontColor: '#ffffff',            // White text color
-      strokeSize: 3,                   // Thicker stroke for better visibility
-      strokeColor: '#000000',          // Black stroke color
-      align: "center",                 // Center-align the text
-      valign: "middle",                // Vertically center the text
-      backgroundColor: 'transparent',   // Transparent background
-    }).render().toBuffer();
+    const buffer = new UltimateTextToImage(string, defaultSettings).render().toBuffer();
     
     console.log('✅ Image generated successfully with custom font');
     
@@ -73,17 +78,7 @@ async function getImageArt(string) {
     // Fallback: create simple text image without custom font
     console.log('🔄 Falling back to default font...');
     try {
-      const fallbackBuffer = new UltimateTextToImage(string, {
-        fontSize: 100,                 // Slightly smaller for fallback
-        width: 600,
-        height: 200,
-        fontColor: '#ffffff',
-        strokeSize: 3,
-        strokeColor: '#000000',
-        align: "center",
-        valign: "middle",
-        backgroundColor: 'transparent',
-      }).render().toBuffer();
+      const fallbackBuffer = new UltimateTextToImage(string, {...defaultSettings, fontFamily: "Arial"}).render().toBuffer();
       
       console.log('✅ Fallback image generated with default font');
       return new AttachmentBuilder(fallbackBuffer, { name: 'countdown.png' });
@@ -393,13 +388,13 @@ async function sendCountdownMessage() {
     let message;
     if (daysRemaining > 0) {
       // Future: Days remaining until target date
-      message = `🗓️ **Countdown Update**: ${daysRemaining > 1 ? `${daysRemaining} days` : '1 day'} left until May 26, 2026!\n`;
+      message = `🗓️ **Countdown Update**: ${daysRemaining > 1 ? `${daysRemaining} days` : '1 day'} left until May 26, 2026!\n \n`;
     } else if (daysRemaining === 0) {
       // Present: Target date is today
-      message = `🎉 **Today is the day!** May 26, 2026 has arrived!\n`;
+      message = `🎉 **Today is the day!** May 26, 2026 has arrived!\n \n`;
     } else {
       // Past: Target date has already passed
-      message = `📆 May 26, 2026 was ${Math.abs(daysRemaining) > 1 ? `${Math.abs(daysRemaining)} days` : '1 day'} ago.\n`;
+      message = `📆 May 26, 2026 was ${Math.abs(daysRemaining) > 1 ? `${Math.abs(daysRemaining)} days` : '1 day'} ago.\n \n`;
     }
     
     // Send the formatted message to the channel
