@@ -21,33 +21,7 @@ dotenv.config();
 // Import required Discord.js components and cron scheduler
 import { AttachmentBuilder, Client, GatewayIntentBits, underline } from 'discord.js';
 import cron from 'node-cron';
-import { registerFont, UltimateTextToImage } from "ultimate-text-to-image";
-
-// Register custom font for text-to-image generation
-// Note: The font file must exist in the assets directory
-try {
-  registerFont("./assets/diploma.ttf", { family: "Diploma" });
-  console.log('✅ Custom font "Diploma" registered successfully');
-} catch (error) {
-  console.error('❌ Failed to register custom font:', error);
-}
-
-const primaryColor = '#ffffff';
-const secondaryColor = "#FCA41C";
-
-const defaultSettings = {
-    fontFamily: "Arial",
-    fontSize: 40,
-    fontColor: primaryColor,
-    width: 200,
-    height: 60,
-    align: "center",
-    valign: "middle",
-    backgroundColor: secondaryColor,
-    bold: true,
-    strokeSize: 2,
-    strokeColor: primaryColor,
-  }
+import { generate } from 'text-to-image';
 
 /**
  * Generate an image with styled text using the custom Diploma font
@@ -62,32 +36,25 @@ const defaultSettings = {
 async function getImageArt(string) {
   console.log(`🎨 Generating image art for: "${string}"`);
   
-  try {
-    // Create image buffer with custom styling
-    const buffer = new UltimateTextToImage(string, defaultSettings).render().toBuffer();
-    
-    console.log('✅ Image generated successfully with custom font');
-    
-    // Create Discord attachment from the buffer
-    const attachment = new AttachmentBuilder(buffer, { name: 'countdown.png' });
-    return attachment;
-    
-  } catch (error) {
-    console.error('❌ Error generating image art with custom font:', error);
-    
-    // Fallback: create simple text image without custom font
-    console.log('🔄 Falling back to default font...');
-    try {
-      const fallbackBuffer = new UltimateTextToImage(string, {...defaultSettings, fontFamily: "Arial"}).render().toBuffer();
-      
-      console.log('✅ Fallback image generated with default font');
-      return new AttachmentBuilder(fallbackBuffer, { name: 'countdown.png' });
-      
-    } catch (fallbackError) {
-      console.error('❌ Fallback font also failed:', fallbackError);
-      throw fallbackError;
-    }
-  }
+  // Generate image data URL with specified styles
+  const dataUrl = await generate(string, {
+    fontPath: "./assets/pricedown.otf",
+    fontSize: 80,
+    textColor: 'white',
+    lineHeight: 90,
+    margin: 20,
+    bgColor: 'transparent',
+    strokeWidth: 2,
+    strokeColor: 'black',
+    maxWidth: 800,
+  });
+
+  // Convert data URL to buffer
+  const base64Data = dataUrl.replace(/^data:image\/png;base64,/, '');
+  const imageBuffer = Buffer.from(base64Data, 'base64');
+
+  // Create and return Discord attachment
+  return new AttachmentBuilder(imageBuffer, { name: 'countdown.png' });
 }
 
 // Initialize Discord client with necessary permissions
