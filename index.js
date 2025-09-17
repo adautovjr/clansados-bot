@@ -19,8 +19,81 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Import required Discord.js components and cron scheduler
-import { Client, GatewayIntentBits } from 'discord.js';
+import { AttachmentBuilder, Client, GatewayIntentBits } from 'discord.js';
 import cron from 'node-cron';
+import { registerFont, UltimateTextToImage } from "ultimate-text-to-image";
+
+// Register custom font for text-to-image generation
+// Note: The font file must exist in the assets directory
+try {
+  registerFont("./assets/diploma.ttf", { family: "Diploma" });
+  console.log('✅ Custom font "Diploma" registered successfully');
+} catch (error) {
+  console.error('❌ Failed to register custom font:', error);
+}
+
+/**
+ * Generate an image with styled text using the custom Diploma font
+ * 
+ * This function creates a Discord attachment containing an image with the 
+ * specified text rendered using the registered Diploma font. The image
+ * has white text with black stroke for better readability.
+ * 
+ * @param {string} string - The text to render in the image
+ * @returns {Promise<AttachmentBuilder>} Discord attachment with the generated image
+ */
+async function getImageArt(string) {
+  console.log(`🎨 Generating image art for: "${string}"`);
+  
+  try {
+    // Create image buffer with custom styling
+    const buffer = new UltimateTextToImage(string, {
+      fontFamily: "Diploma",           // Use the registered custom font
+      fontSize: 120,                   // Large font size for visibility
+      fontWeight: "normal",            // Use normal weight (more compatible)
+      width: 600,                      // Increased width for better text spacing
+      height: 200,                     // Set explicit height
+      fontColor: '#ffffff',            // White text color
+      strokeSize: 3,                   // Thicker stroke for better visibility
+      strokeColor: '#000000',          // Black stroke color
+      align: "center",                 // Center-align the text
+      valign: "middle",                // Vertically center the text
+      backgroundColor: 'transparent',   // Transparent background
+    }).render().toBuffer();
+    
+    console.log('✅ Image generated successfully with custom font');
+    
+    // Create Discord attachment from the buffer
+    const attachment = new AttachmentBuilder(buffer, { name: 'countdown.png' });
+    return attachment;
+    
+  } catch (error) {
+    console.error('❌ Error generating image art with custom font:', error);
+    
+    // Fallback: create simple text image without custom font
+    console.log('🔄 Falling back to default font...');
+    try {
+      const fallbackBuffer = new UltimateTextToImage(string, {
+        fontSize: 100,                 // Slightly smaller for fallback
+        width: 600,
+        height: 200,
+        fontColor: '#ffffff',
+        strokeSize: 3,
+        strokeColor: '#000000',
+        align: "center",
+        valign: "middle",
+        backgroundColor: 'transparent',
+      }).render().toBuffer();
+      
+      console.log('✅ Fallback image generated with default font');
+      return new AttachmentBuilder(fallbackBuffer, { name: 'countdown.png' });
+      
+    } catch (fallbackError) {
+      console.error('❌ Fallback font also failed:', fallbackError);
+      throw fallbackError;
+    }
+  }
+}
 
 // Initialize Discord client with necessary permissions
 const client = new Client({
@@ -295,7 +368,7 @@ async function sendCountdownMessage() {
     const alreadyPostedToday = await hasPostedTodayMessage(channel);
     if (alreadyPostedToday) {
       console.log('Countdown message for today was already sent. Skipping.');
-      return;
+      // return;
     }
     
     // Clean up: find and delete the previous countdown message
@@ -313,23 +386,24 @@ async function sendCountdownMessage() {
     // Calculate countdown and generate ASCII art
     const daysRemaining = getDaysRemaining();
     const numberString = Math.abs(daysRemaining).toString();
-    const asciiArt = getAsciiArt(numberString + " DAYS");
+    // const asciiArt = getAsciiArt(numberString + " DAYS");
+    const imageArt = await getImageArt(numberString + " days");
     
     // Format message based on countdown status
     let message;
     if (daysRemaining > 0) {
       // Future: Days remaining until target date
-      message = `🗓️ **Countdown Update**: ${daysRemaining > 1 ? `${daysRemaining} days` : '1 day'} left until May 26, 2026!\n\`\`\`\n${asciiArt}\n\`\`\``;
+      message = `🗓️ **Countdown Update**: ${daysRemaining > 1 ? `${daysRemaining} days` : '1 day'} left until May 26, 2026!\n`;
     } else if (daysRemaining === 0) {
       // Present: Target date is today
-      message = `🎉 **Today is the day!** May 26, 2026 has arrived!\n\`\`\`\n${getAsciiArt('0')}\n\`\`\``;
+      message = `🎉 **Today is the day!** May 26, 2026 has arrived!\n`;
     } else {
       // Past: Target date has already passed
-      message = `📆 May 26, 2026 was ${Math.abs(daysRemaining) > 1 ? `${Math.abs(daysRemaining)} days` : '1 day'} ago.\n\`\`\`\n${asciiArt}\n\`\`\``;
+      message = `📆 May 26, 2026 was ${Math.abs(daysRemaining) > 1 ? `${Math.abs(daysRemaining)} days` : '1 day'} ago.\n`;
     }
     
     // Send the formatted message to the channel
-    await channel.send(message);
+    await channel.send({ content: message, files: [imageArt] });
     console.log('Countdown message sent successfully');
   } catch (error) {
     console.error('Error sending countdown message:', error);
