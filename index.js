@@ -19,8 +19,43 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Import required Discord.js components and cron scheduler
-import { Client, GatewayIntentBits } from 'discord.js';
+import { AttachmentBuilder, Client, GatewayIntentBits } from 'discord.js';
 import cron from 'node-cron';
+import { generate } from 'text-to-image';
+
+/**
+ * Generate an image with styled text using the custom Diploma font
+ * 
+ * This function creates a Discord attachment containing an image with the 
+ * specified text rendered using the registered Diploma font. The image
+ * has white text with black stroke for better readability.
+ * 
+ * @param {string} string - The text to render in the image
+ * @returns {Promise<AttachmentBuilder>} Discord attachment with the generated image
+ */
+async function getImageArt(string) {
+  console.log(`🎨 Generating image art for: "${string}"`);
+  
+  // Generate image data URL with specified styles
+  const dataUrl = await generate(string, {
+    fontPath: "./assets/pricedown.otf",
+    fontSize: 180,
+    textColor: 'white',
+    lineHeight: 230,
+    margin: 10,
+    bgColor: 'transparent',
+    strokeWidth: 20,
+    strokeColor: 'black',
+    maxWidth: 800
+  });
+
+  // Convert data URL to buffer
+  const base64Data = dataUrl.replace(/^data:image\/png;base64,/, '');
+  const imageBuffer = Buffer.from(base64Data, 'base64');
+
+  // Create and return Discord attachment
+  return new AttachmentBuilder(imageBuffer, { name: 'countdown.png' });
+}
 
 // Initialize Discord client with necessary permissions
 const client = new Client({
@@ -46,168 +81,6 @@ function getDaysRemaining() {
   const timeDiff = targetDate.getTime() - today.getTime();
   const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
   return daysRemaining;
-}
-
-/**
- * Generate ASCII art for a given string of numbers and letters
- * 
- * This function converts a string containing digits and specific letters
- * (D, A, Y, S, I) into large ASCII art representation.
- * 
- * @param {string} numberString - The string to convert to ASCII art
- * @returns {string} The ASCII art representation with newlines
- */
-function getAsciiArt(numberString) {
-  // ASCII art patterns for each supported character
-  // Each character is represented as an array of 6 lines
-  const digitsArt = {
-    "0": [
-      "  ___  ",
-      " / _ \\ ",
-      "| | | |",
-      "| | | |",
-      "| |_| |",
-      " \\___/ "
-    ],
-    "1": [
-      "  __ ",
-      " /_ |",
-      "  | |",
-      "  | |",
-      "  | |",
-      "  |_|"
-    ],
-    "2": [
-      "  ___  ",
-      " |__ \\ ",
-      "    ) |",
-      "   / / ",
-      "  / /_ ",
-      " |____|"
-    ],
-    "3": [
-      "  ____  ",
-      " |___ \\ ",
-      "   __) |",
-      "  |__ < ",
-      "  ___) |",
-      " |____/ "
-    ],
-    "4": [
-      "  _  _   ",
-      " | || |  ",
-      " | || |_ ",
-      " |__   _|",
-      "    | |  ",
-      "    |_|  "
-    ],
-    "5": [
-      "  _____ ",
-      " | ____|",
-      " | |__  ",
-      " |___ \\ ",
-      "  ___) |",
-      " |____/ "
-    ],
-    "6": [
-      "   __  ",
-      "  / /  ",
-      " / /_  ",
-      "| '_ \\ ",
-      "| (_) |",
-      " \\___/ "
-    ],
-    "7": [
-      "  ______ ",
-      " |____  |",
-      "     / / ",
-      "    / /  ",
-      "   / /   ",
-      "  /_/    "
-    ],
-    "8": [
-      "  ___  ",
-      " / _ \\ ",
-      "| (_) |",
-      " > _ < ",
-      "| (_) |",
-      " \\___/ "
-    ],
-    "9": [
-      "  ___  ",
-      " / _ \\ ",
-      "| (_) |",
-      " \\__, |",
-      "   / / ",
-      "  /_/  "
-    ],
-    "D": [
-      "  ____  ",
-      " |  _ \\ ",
-      " | | | |",
-      " | | | |",
-      " | |_| |",
-      " |____/ ",
-      "        "
-    ],
-    "A": [
-      "      __     ",
-      "     /  \\    ",
-      "    /    \\   ",
-      "   /  __  \\  ",
-      "  /  ____  \\ ",
-      " /__/    \\__\\",
-    ],
-    "Y": [
-      "  __   __ ",
-      "  \\ \\ / / ",
-      "   \\ V /  ",
-      "    > /   ",
-      "   / /    ",
-      "  /_/     "
-    ],
-    "S": [
-      "  ____  ",
-      " / ___| ",
-      "| (___ ",
-      " \\___ \\ ",
-      "  ___) |",
-      " |____/ "
-    ],
-    "I": [
-      "  ___  ",
-      " |_ _| ",
-      "  | |  ",
-      "  | |  ",
-      " |___| ",
-      "       "
-    ],
-    " ": [
-      "       ",
-      "       ",
-      "       ",
-      "       ",
-      "       ",
-      "       "
-    ]
-  };
-
-  // Initialize array to hold the 6 lines of ASCII art
-  const lines = ["", "", "", "", "", ""];
-
-  // Process each character in the input string
-  for (const digit of numberString) {
-    // Get ASCII art for current character, fallback to spaces if not found
-    const digitLines = digitsArt[digit] || ["      ", "      ", "      ", "      ", "      ", "      "];
-    
-    // Append each line of the character's ASCII art to the corresponding line
-    for (let i = 0; i < 6; i++) {
-      lines[i] += digitLines[i];
-    }
-  }
-
-  // Join all lines with newlines to create the final ASCII art
-  return lines.join("\n");
 }
 
 /**
@@ -313,23 +186,23 @@ async function sendCountdownMessage() {
     // Calculate countdown and generate ASCII art
     const daysRemaining = getDaysRemaining();
     const numberString = Math.abs(daysRemaining).toString();
-    const asciiArt = getAsciiArt(numberString + " DAYS");
+    const imageArt = await getImageArt(numberString + " days");
     
     // Format message based on countdown status
     let message;
     if (daysRemaining > 0) {
       // Future: Days remaining until target date
-      message = `🗓️ **Countdown Update**: ${daysRemaining > 1 ? `${daysRemaining} days` : '1 day'} left until May 26, 2026!\n\`\`\`\n${asciiArt}\n\`\`\``;
+      message = `🗓️ **Countdown Update**: ${daysRemaining > 1 ? `${daysRemaining} days` : '1 day'} left until May 26, 2026!\n \n`;
     } else if (daysRemaining === 0) {
       // Present: Target date is today
-      message = `🎉 **Today is the day!** May 26, 2026 has arrived!\n\`\`\`\n${getAsciiArt('0')}\n\`\`\``;
+      message = `🎉 **Today is the day!** May 26, 2026 has arrived!\n \n`;
     } else {
       // Past: Target date has already passed
-      message = `📆 May 26, 2026 was ${Math.abs(daysRemaining) > 1 ? `${Math.abs(daysRemaining)} days` : '1 day'} ago.\n\`\`\`\n${asciiArt}\n\`\`\``;
+      message = `📆 May 26, 2026 was ${Math.abs(daysRemaining) > 1 ? `${Math.abs(daysRemaining)} days` : '1 day'} ago.\n \n`;
     }
     
     // Send the formatted message to the channel
-    await channel.send(message);
+    await channel.send({ content: message, files: [imageArt] });
     console.log('Countdown message sent successfully');
   } catch (error) {
     console.error('Error sending countdown message:', error);
