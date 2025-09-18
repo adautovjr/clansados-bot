@@ -23,14 +23,14 @@ jobs:
 
       - name: Pull Docker image
         run: docker pull adautovjr/how-much-left-discord-bot:latest
-      
-      - name: Stop and remove old containers
-        run: docker compose down -v --rmi all || true
 
       - name: Set up .env file
         run: |
           echo "DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}" >> .env
           echo "CHANNEL_ID=${{ secrets.CHANNEL_ID }}" >> .env
+      
+      - name: Stop and remove old containers
+        run: docker compose down -v --rmi all || true
 
       - name: Deploy with Docker Compose
         run: docker compose up -d
