@@ -25,7 +25,7 @@ jobs:
         run: docker pull adautovjr/how-much-left-discord-bot:latest
       
       - name: Stop and remove old containers
-        run: docker compose down -v || true
+        run: docker compose down -v --rmi all || true
 
       - name: Set up .env file
         run: |
