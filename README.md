@@ -67,8 +67,8 @@ Este bot oferece:
 
 1. **Clone o repositório**
    ```bash
-   git clone https://github.com/adautovjr/how-much-left-disc-bot.git
-   cd how-much-left-disc-bot
+   git clone https://github.com/adautovjr/clansados-discord-bot.git
+   cd clansados-discord-bot
    ```
 
 2. **Instale as dependências**
@@ -232,7 +232,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 🐛 Reportar Bugs
 
-Encontrou um bug? Abra uma [issue](https://github.com/adautovjr/how-much-left-disc-bot/issues) descrevendo:
+Encontrou um bug? Abra uma [issue](https://github.com/adautovjr/clansados-discord-bot/issues) descrevendo:
 
 - O que aconteceu
 - O que era esperado

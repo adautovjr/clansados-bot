@@ -28,7 +28,7 @@ jobs:
           echo "CHANNEL_ID=${{ secrets.CHANNEL_ID }}" >> .env
       
       - name: Build Docker image
-        run: docker build -t adautovjr/how-much-left-discord-bot:latest .
+        run: docker build -t adautovjr/clansados-discord-bot:latest .
 
       - name: Push to Dockerhub
-        run: docker push adautovjr/how-much-left-discord-bot:latest
+        run: docker push adautovjr/clansados-discord-bot:latest

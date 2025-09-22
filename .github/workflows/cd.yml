@@ -22,7 +22,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Pull Docker image
-        run: docker pull adautovjr/how-much-left-discord-bot:latest
+        run: docker pull adautovjr/clansados-discord-bot:latest
 
       - name: Set up .env file
         run: |
