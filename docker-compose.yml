@@ -1,3 +1,7 @@
+volumes:
+  data:
+    name: clansados-discord-bot-data
+
 services:
   countdown-bot:
     image: adautovjr/clansados-discord-bot:latest
@@ -7,3 +11,5 @@ services:
     restart: always
     env_file:
       - .env
+    volumes:
+      - data:./data

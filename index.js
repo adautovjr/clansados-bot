@@ -49,7 +49,7 @@ const client = new Client({
 });
 
 // Arquivo para armazenar os dados de seguidores
-const DATA_FILE = './followers.json';
+const DATA_FILE = './data/followers.json';
 
 // Estrutura: { channelId: [userId1, userId2, ...], userId: [followerId1, followerId2, ...] }
 let followersData = {};
