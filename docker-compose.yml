@@ -1,6 +1,3 @@
-volumes:
-  data:
-
 services:
   countdown-bot:
     image: adautovjr/clansados-discord-bot:latest
@@ -11,4 +8,4 @@ services:
     env_file:
       - .env
     volumes:
-      - ./data:data
+      - ./data:/app/data
