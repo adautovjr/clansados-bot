@@ -1,23 +1,44 @@
-# 🤖 How Much Left Discord Bot
+# 🤖 Clansados Bot
 
-Um bot do Discord que faz uma contagem regressiva para **26 de maio de 2026** com arte ASCII bonita e atualizações diárias automáticas!
+Um bot do Discord que combina funcionalidades de seguimento de canais de voz com countdown automático!
 
 ## 📝 Descrição
 
-Este bot:
-- 🗓️ Conta os dias restantes até 26 de maio de 2026
-- 🎨 Mostra a contagem com arte ASCII linda
-- 🔄 Atualiza automaticamente todos os dias às 8:00 AM (UTC)
-- 🧹 Remove a mensagem anterior para manter o canal limpo
-- 📅 Detecta quando a data já passou e mostra quantos dias se passaram
+Este bot oferece:
+- 👥 Sistema de seguir canais de voz específicos
+- 🔔 Notificações via DM quando alguém entra em canais seguidos
+- 👤 Sistema de seguir usuários específicos
+- 📱 Notificações quando usuários seguidos entram em qualquer canal
+- 🎯 Notificações inteligentes (não notifica se você já está no canal)
+- � Countdown automático diário com arte ASCII
+- �💾 Persistência de dados em arquivo JSON
+- 🔄 Comandos slash para fácil interação
 
 ## ✨ Funcionalidades
 
-- **Contagem regressiva visual**: Arte ASCII para números grandes e legíveis
-- **Atualizações automáticas**: Agendamento com cron para envios diários
-- **Limpeza inteligente**: Remove mensagens antigas automaticamente
-- **Proteção contra spam**: Não envia múltiplas mensagens no mesmo dia
-- **Docker ready**: Configurado para deploy fácil com Docker
+### 🎯 Comandos de Seguimento
+
+- `/follow [channelId/userId/@usuario]` - Seguir um canal de voz ou usuário
+- `/following` - Ver lista de canais/usuários que você está seguindo
+- `/unfollow [channelId/userId/@usuario]` - Parar de seguir um canal ou usuário
+
+### 📅 Countdown Automático
+
+- **Agendamento automático**: Countdown enviado diariamente às 8:00 AM UTC
+- **Arte ASCII**: Visualização estilizada com imagens geradas
+- **Data alvo**: 26 de maio de 2026
+- **Configuração opcional**: Configure `CHANNEL_ID` no .env para ativar
+
+### Recursos
+
+- **Notificações inteligentes**: Receba DMs quando atividade acontecer nos canais/usuários seguidos
+- **Não spam**: Você não será notificado se já estiver no mesmo canal onde alguém entrou
+- **Auto-exclusão**: Você não recebe notificações sobre suas próprias entradas em canais
+- **Persistência de dados**: Todas as configurações são salvas em arquivo JSON
+- **Suporte a canais e usuários**: Siga tanto canais específicos quanto usuários
+- **Menções suportadas**: Use @usuario ao invés de copiar IDs
+- **Interface moderna**: Comandos slash para fácil uso
+- **Sistema robusto**: Tratamento de erros e validação de IDs
 
 ## 🚀 Como Executar
 
@@ -25,7 +46,7 @@ Este bot:
 
 - Node.js 18+ ou Docker
 - Um bot do Discord criado no [Discord Developer Portal](https://discord.com/developers/applications)
-- Token do bot e ID do canal onde deseja enviar as mensagens
+- Token do bot
 
 ### 📋 Configuração do Bot Discord
 
@@ -34,8 +55,13 @@ Este bot:
 3. Vá para a aba "Bot" e crie um bot
 4. Copie o token do bot
 5. Em "Privileged Gateway Intents", habilite:
+   - Server Members Intent
    - Message Content Intent
-   - Server Members Intent (opcional)
+6. Em "Bot Permissions", selecione:
+   - Send Messages
+   - Use Slash Commands
+   - Connect (para monitorar canais de voz)
+   - View Channels
 
 ### 🔧 Configuração Local
 
@@ -58,8 +84,14 @@ Este bot:
    Edite o arquivo `.env` com suas informações:
    ```env
    DISCORD_TOKEN=seu_token_do_bot_aqui
-   CHANNEL_ID=id_do_canal_aqui
+   CHANNEL_ID=id_do_canal_para_countdown (opcional)
    ```
+   
+   **Configurações:**
+   - `DISCORD_TOKEN`: **Obrigatório** - Token do seu bot Discord
+   - `CHANNEL_ID`: **Opcional** - ID do canal onde o countdown será enviado
+     - Se não configurado, apenas as funcionalidades de seguimento estarão ativas
+     - Se configurado, o countdown será enviado automaticamente às 8:00 AM UTC
 
 4. **Execute o bot**
    ```bash
@@ -81,32 +113,87 @@ Este bot:
 
    Ou construa e execute manualmente:
    ```bash
-   docker build -t discord-countdown-bot .
-   docker run -d --env-file .env --name countdown-bot discord-countdown-bot
+   docker build -t clansados-bot .
+   docker run -d --env-file .env --name clansados-bot clansados-bot
    ```
 
-## 🛠️ Como Obter o ID do Canal
+## 📖 Como Usar
 
+### 1. Convidar o Bot
+
+Use o link de convite gerado no Discord Developer Portal com as permissões necessárias.
+
+### 2. Comandos Disponíveis
+
+#### `/follow [channelId/userId/@usuario]`
+Segue um canal de voz ou usuário para receber notificações:
+
+```
+# Usando ID do canal
+/follow 123456789012345678
+
+# Usando ID do usuário  
+/follow 987654321098765432
+
+# Usando menção do usuário (mais fácil!)
+/follow @joao
+```
+
+- **Para canal**: Você receberá uma DM sempre que alguém entrar neste canal
+- **Para usuário**: Você receberá uma DM sempre que este usuário entrar em qualquer canal
+
+#### `/following`
+Mostra todos os canais e usuários que você está seguindo:
+
+```
+/following
+```
+
+#### `/unfollow [channelId/userId/@usuario]`
+Para de seguir um canal ou usuário:
+
+```
+# Usando ID
+/unfollow 123456789012345678
+
+# Usando menção (mais fácil!)
+/unfollow @joao
+```
+
+### 3. Como Usar
+
+#### 🎯 **Método Mais Fácil - Menções**:
+Para seguir usuários, simplesmente mencione eles:
+- `/follow @joao` - Segue o usuário João
+- `/unfollow @maria` - Para de seguir a usuária Maria
+
+#### 📋 **Método Tradicional - IDs**:
+
+##### ID de Canal de Voz:
 1. Habilite o "Modo Desenvolvedor" no Discord:
    - Configurações do Discord → Avançado → Modo Desenvolvedor
-2. Clique com o botão direito no canal desejado
+2. Clique com botão direito no canal de voz
 3. Selecione "Copiar ID"
 
-## 📅 Personalizando a Data
+##### ID de Usuário:
+1. Com o Modo Desenvolvedor habilitado
+2. Clique com botão direito no usuário
+3. Selecione "Copiar ID do Usuário"
 
-Para alterar a data alvo, edite a linha 17 no arquivo `index.js`:
+> 💡 **Dica**: É muito mais fácil usar menções (@usuario) do que copiar IDs!
 
-```javascript
-const targetDate = new Date('May 26, 2026');
+## 💾 Persistência de Dados
+
+O bot salva todas as configurações no arquivo `followers.json` que é criado automaticamente. A estrutura é:
+
+```json
+{
+  "channelId1": ["userId1", "userId2"],
+  "userId1": ["followerId1", "followerId2"]
+}
 ```
 
-Para alterar o horário das mensagens diárias, edite a linha 246:
-
-```javascript
-cron.schedule('0 8 * * *', sendCountdownMessage, {
-```
-
-O formato é: `minuto hora dia mês dia_da_semana`
+Este arquivo mantém o estado mesmo após reinicialização do bot.
 
 ## 🤝 Como Contribuir
 
