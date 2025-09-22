@@ -1,6 +1,5 @@
 volumes:
   data:
-    name: clansados-discord-bot-data
 
 services:
   countdown-bot:
