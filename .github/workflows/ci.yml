@@ -29,6 +29,3 @@ jobs:
       
       - name: Build Docker image
         run: docker build -t adautovjr/clansados-discord-bot:latest .
-
-      - name: Push to Dockerhub
-        run: docker push adautovjr/clansados-discord-bot:latest
